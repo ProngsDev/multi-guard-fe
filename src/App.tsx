@@ -4,7 +4,7 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { Layout } from '@/components/layout';
 import { queryClient } from '@/utils/queryClient';
 import { useWallet } from '@/hooks';
-import { NetworkAlert } from '@/components/NetworkAlert';
+import { NetworkAlert, FaucetNotification } from '@/components';
 
 // Pages
 import LandingPage from '@/pages/LandingPage';
@@ -20,6 +20,9 @@ const ProtectedRoutes: React.FC = () => {
     <Layout>
       {/* Network validation alert - shows when user is on wrong network */}
       <NetworkAlert className="mx-4 mt-4" />
+
+      {/* Faucet notification - shows when user is on testnet */}
+      <FaucetNotification className="mx-4" />
 
       <Routes>
         <Route path="/dashboard" element={<Dashboard />} />
