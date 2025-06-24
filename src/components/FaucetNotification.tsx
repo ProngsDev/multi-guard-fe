@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { AlertWithIcon, Button } from '@/components/ui';
 import { useNetworkValidation } from '@/hooks/useNetworkValidation';
-import { 
+import {
   XMarkIcon,
   CurrencyDollarIcon,
-  ExternalLinkIcon 
+  ArrowTopRightOnSquareIcon
 } from '@heroicons/react/24/outline';
 
 interface FaucetNotificationProps {
@@ -55,7 +55,7 @@ export const FaucetNotification: React.FC<FaucetNotificationProps> = ({
             >
               <CurrencyDollarIcon className="w-4 h-4" />
               Get Test ETH
-              <ExternalLinkIcon className="w-3 h-3" />
+              <ArrowTopRightOnSquareIcon className="w-3 h-3" />
             </Button>
           </div>
 
