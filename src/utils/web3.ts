@@ -15,7 +15,7 @@ const networks = [mainnet, sepolia, polygon, polygonMumbai]
 const metadata = {
   name: 'MultiGuard Wallet',
   description: 'Multi-signature wallet interface',
-  url: import.meta.env.DEV ? 'http://localhost:5173' : 'https://multiguard.app', // origin must match your domain & subdomain
+  url: import.meta.env.DEV ? 'http://localhost:5173' : (import.meta.env.VITE_APP_URL || 'https://multi-guard-fe.vercel.app'), // origin must match your domain & subdomain
   icons: ['https://avatars.githubusercontent.com/u/179229932']
 }
 
