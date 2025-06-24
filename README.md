@@ -35,11 +35,14 @@ A modern, responsive web application for managing multi-signature wallets on Eth
 
 - **Frontend**: React 19 with TypeScript
 - **Styling**: Tailwind CSS 4.x
-- **Web3**: Ethers.js v6
+- **Web3**: Ethers.js v6, Wagmi, Viem
 - **Wallet Connection**: Reown AppKit (formerly Web3Modal)
 - **State Management**: TanStack Query (React Query)
 - **Routing**: React Router v7
 - **Form Handling**: React Hook Form
+- **UI Components**: Headless UI
+- **Styling Utilities**: Class Variance Authority, Tailwind Merge
+- **Date Handling**: Date-fns
 - **Build Tool**: Vite
 - **Icons**: Heroicons
 
@@ -71,7 +74,9 @@ A modern, responsive web application for managing multi-signature wallets on Eth
 
    Edit `.env` and configure:
    - `VITE_REOWN_PROJECT_ID`: Get from [Reown Cloud](https://cloud.reown.com)
+   - `VITE_APP_URL`: Your application URL (for WalletConnect metadata)
    - `VITE_WALLET_FACTORY_ADDRESS`: Your deployed WalletFactory contract address
+   - `VITE_DEFAULT_NETWORK`: (Optional) Default network (e.g., sepolia)
 
 4. **Start development server**
    ```bash
@@ -88,11 +93,13 @@ src/
 ├── components/          # Reusable UI components
 │   ├── ui/             # Base UI components (Button, Card, etc.)
 │   ├── layout/         # Layout components (Header, Sidebar)
+│   ├── landing/        # Landing page components
 │   └── wallet/         # Wallet-specific components
 ├── contracts/          # Smart contract ABIs and utilities
 │   └── abis/          # Contract ABI files
 ├── hooks/             # Custom React hooks
 ├── pages/             # Page components
+├── styles/            # Global styles and theme
 ├── types/             # TypeScript type definitions
 └── utils/             # Utility functions
 ```
@@ -174,6 +181,7 @@ pnpm lint         # Run ESLint
 
 - **TypeScript**: Full type safety
 - **ESLint**: Code linting and formatting
+- **Path aliases**: Configured for clean imports (@/components, @/hooks, etc.)
 - **Consistent patterns**: Standardized component structure
 
 ## Deployment
@@ -190,7 +198,11 @@ The built files will be in the `dist/` directory.
 
 Required for production:
 - `VITE_REOWN_PROJECT_ID`: Reown project ID
+- `VITE_APP_URL`: Application URL for WalletConnect metadata
 - `VITE_WALLET_FACTORY_ADDRESS`: Factory contract address
+
+Optional:
+- `VITE_DEFAULT_NETWORK`: Default network configuration
 
 ### Hosting Options
 
