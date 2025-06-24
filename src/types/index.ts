@@ -1,4 +1,5 @@
 export * from './contracts';
+export * from './contracts-abi';
 
 export interface User {
   address: string;

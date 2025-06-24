@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { Contract } from 'ethers';
 import { useWallet } from './useWallet';
 import { useMultiSigWallet, useWalletFactory } from './useContract';
-import { formatEther, parseEther } from '@/utils/web3';
+import { formatEther, parseEther, parseContractError, retryContractCall } from '@/utils/web3';
 import type { 
   WalletInfo, 
   PendingTransaction, 
@@ -20,9 +20,32 @@ export const useMultiSigOperations = (walletAddress?: string) => {
 
   const handleError = useCallback((error: any, defaultMessage: string) => {
     console.error(error);
-    const message = error?.reason || error?.message || defaultMessage;
+    const message = parseContractError(error) || defaultMessage;
     setError(message);
     return null;
+  }, []);
+
+  // Helper function to fetch all owners from the contract
+  const fetchOwners = useCallback(async (contract: Contract): Promise<string[]> => {
+    const owners: string[] = [];
+    let index = 0;
+
+    try {
+      // Fetch owners until we hit an error (indicating end of array)
+      while (index < 10) { // Max 10 owners as per contract limit
+        const owner = await contract.owners(index);
+        if (owner && owner !== '0x0000000000000000000000000000000000000000') {
+          owners.push(owner);
+          index++;
+        } else {
+          break;
+        }
+      }
+    } catch {
+      // Expected when we reach the end of the owners array
+    }
+
+    return owners;
   }, []);
 
   const getWalletInfo = useCallback(async (): Promise<WalletInfo | null> => {
@@ -33,11 +56,7 @@ export const useMultiSigOperations = (walletAddress?: string) => {
       setError(null);
 
       const [owners, threshold, balance, isOwner] = await Promise.all([
-        multiSigContract.owners ? 
-          Promise.all(Array.from({ length: 10 }, (_, i) => 
-            multiSigContract.owners(i).catch(() => null)
-          )).then(results => results.filter(Boolean)) :
-          [],
+        fetchOwners(multiSigContract),
         multiSigContract.threshold(),
         provider.getBalance(walletAddress),
         userAddress ? multiSigContract.isOwner(userAddress) : false,
@@ -45,7 +64,7 @@ export const useMultiSigOperations = (walletAddress?: string) => {
 
       return {
         address: walletAddress,
-        owners: owners as string[],
+        owners,
         threshold: Number(threshold),
         balance: formatEther(balance),
         isOwner: Boolean(isOwner),
@@ -55,7 +74,7 @@ export const useMultiSigOperations = (walletAddress?: string) => {
     } finally {
       setIsLoading(false);
     }
-  }, [multiSigContract, provider, walletAddress, userAddress, handleError]);
+  }, [multiSigContract, provider, walletAddress, userAddress, handleError, fetchOwners]);
 
   const getPendingTransactions = useCallback(async (): Promise<PendingTransaction[]> => {
     if (!multiSigContract || !userAddress) return [];
@@ -110,20 +129,32 @@ export const useMultiSigOperations = (walletAddress?: string) => {
       setIsLoading(true);
       setError(null);
 
-      const tx = await factoryContract.createWallet(params.owners, params.threshold);
-      const receipt = await tx.wait();
-      
-      // Extract wallet address from events
-      const walletCreatedEvent = receipt.logs.find((log: any) => 
-        log.topics[0] === factoryContract.interface.getEvent('WalletCreated').topicHash
-      );
-      
-      if (walletCreatedEvent) {
-        const decoded = factoryContract.interface.parseLog(walletCreatedEvent);
-        return decoded.args.wallet;
-      }
-      
-      return null;
+      const result = await retryContractCall(async () => {
+        const tx = await factoryContract.createWallet(params.owners, params.threshold);
+        const receipt = await tx.wait();
+
+        // Extract wallet address from events using proper event parsing
+        const walletCreatedEvent = receipt.logs
+          .map(log => {
+            try {
+              return factoryContract.interface.parseLog({
+                topics: log.topics,
+                data: log.data
+              });
+            } catch {
+              return null;
+            }
+          })
+          .find(event => event?.name === 'WalletCreated');
+
+        if (walletCreatedEvent) {
+          return walletCreatedEvent.args.wallet;
+        }
+
+        throw new Error('WalletCreated event not found in transaction receipt');
+      });
+
+      return result;
     } catch (error) {
       return handleError(error, 'Failed to create wallet');
     } finally {
@@ -138,10 +169,12 @@ export const useMultiSigOperations = (walletAddress?: string) => {
       setIsLoading(true);
       setError(null);
 
-      const value = parseEther(params.value);
-      const tx = await multiSigContract.submitTransaction(params.to, value, params.data || '0x');
-      await tx.wait();
-      
+      await retryContractCall(async () => {
+        const value = parseEther(params.value);
+        const tx = await multiSigContract.submitTransaction(params.to, value, params.data || '0x');
+        await tx.wait();
+      });
+
       return true;
     } catch (error) {
       handleError(error, 'Failed to submit transaction');

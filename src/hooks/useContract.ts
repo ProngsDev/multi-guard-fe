@@ -1,16 +1,24 @@
 import { useMemo } from 'react';
 import { Contract, BrowserProvider, JsonRpcSigner } from 'ethers';
 import { MultiSigWalletABI, WalletFactoryABI, CONTRACT_ADDRESSES } from '@/contracts';
+import { validateContractAddress, isValidAddress } from '@/utils/web3';
+import type { ContractABI } from '@/types/contracts-abi';
 
 export const useContract = (
   address: string,
-  abi: any[],
+  abi: ContractABI,
   provider: BrowserProvider | null,
   signer: JsonRpcSigner | null
 ) => {
   return useMemo(() => {
     if (!address || !abi || !provider) return null;
-    
+
+    // Validate address format
+    if (!isValidAddress(address)) {
+      console.error('Invalid contract address:', address);
+      return null;
+    }
+
     try {
       return new Contract(address, abi, signer || provider);
     } catch (error) {
@@ -32,5 +40,15 @@ export const useWalletFactory = (
   provider: BrowserProvider | null,
   signer: JsonRpcSigner | null
 ) => {
-  return useContract(CONTRACT_ADDRESSES.WALLET_FACTORY, WalletFactoryABI, provider, signer);
+  const validatedAddress = useMemo(() => {
+    try {
+      validateContractAddress(CONTRACT_ADDRESSES.WALLET_FACTORY, 'WalletFactory');
+      return CONTRACT_ADDRESSES.WALLET_FACTORY;
+    } catch (error) {
+      console.error('WalletFactory validation failed:', error);
+      return '';
+    }
+  }, []);
+
+  return useContract(validatedAddress, WalletFactoryABI, provider, signer);
 };

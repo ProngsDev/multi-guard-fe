@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { BrowserProvider, JsonRpcSigner } from 'ethers';
+import { useAppKit, useAppKitAccount } from '@reown/appkit/react';
 import { appKit } from '@/utils/web3';
 
 interface WalletState {
@@ -13,6 +14,9 @@ interface WalletState {
 }
 
 export const useWallet = () => {
+  const { open } = useAppKit();
+  const { address, isConnected } = useAppKitAccount();
+
   const [walletState, setWalletState] = useState<WalletState>({
     isConnected: false,
     address: null,
@@ -67,10 +71,36 @@ export const useWallet = () => {
 
   const connect = async () => {
     try {
+      console.log('🔗 Connect button clicked from useWallet hook');
+      console.log('🔗 Open function available:', !!open);
+      console.log('🔗 Open function type:', typeof open);
+
       setWalletState(prev => ({ ...prev, isLoading: true, error: null }));
-      await appKit.open();
+
+      // Try React hook approach first
+      if (open && typeof open === 'function') {
+        console.log('🔗 Using React hook approach...');
+        try {
+          open({ view: 'Connect' });
+          console.log('🔗 React hook open() completed successfully');
+        } catch (hookError) {
+          console.warn('🔗 React hook failed, trying direct AppKit:', hookError);
+          await appKit.open();
+          console.log('🔗 Direct AppKit open() completed successfully');
+        }
+      } else {
+        console.log('🔗 React hook not available, using direct AppKit...');
+        await appKit.open();
+        console.log('🔗 Direct AppKit open() completed successfully');
+      }
+
+      // Reset loading state after a short delay to allow modal to appear
+      setTimeout(() => {
+        setWalletState(prev => ({ ...prev, isLoading: false }));
+      }, 1000);
+
     } catch (error) {
-      console.error('Error connecting wallet:', error);
+      console.error('❌ Error connecting wallet:', error);
       setWalletState(prev => ({
         ...prev,
         isLoading: false,
@@ -111,6 +141,22 @@ export const useWallet = () => {
       unsubscribe();
     };
   }, []);
+
+  // Update wallet state when AppKit account changes
+  useEffect(() => {
+    if (isConnected && address) {
+      updateWalletState();
+    } else {
+      setWalletState(prev => ({
+        ...prev,
+        isConnected: false,
+        address: null,
+        provider: null,
+        signer: null,
+        chainId: null,
+      }));
+    }
+  }, [isConnected, address]);
 
   return {
     ...walletState,
