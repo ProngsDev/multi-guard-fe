@@ -118,47 +118,67 @@ const CreateWallet: React.FC = () => {
   const validOwnersCount = watchedOwners.filter(o => o.address.trim() !== '').length;
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Create Multi-Sig Wallet</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          Set up a new multi-signature wallet with custom owners and threshold
+    <div className="max-w-3xl mx-auto space-y-8">
+      {/* Enhanced Header */}
+      <div className="text-center space-y-4">
+        <div className="mx-auto h-16 w-16 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center mb-6">
+          <UsersIcon className="h-8 w-8 text-blue-600" />
+        </div>
+        <h1 className="text-3xl font-bold text-neutral-900 tracking-tight">Create Multi-Signature Wallet</h1>
+        <p className="text-lg text-neutral-600 max-w-2xl mx-auto leading-relaxed">
+          Set up a new multi-signature wallet with custom owners and confirmation requirements for enhanced security
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center">
-            <UsersIcon className="h-5 w-5 mr-2" />
+      <Card className="shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-t-xl">
+          <CardTitle className="flex items-center gap-3 text-xl">
+            <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
+              <UsersIcon className="h-5 w-5 text-blue-600" />
+            </div>
             Wallet Configuration
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* Owners Section */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-3">
-                Wallet Owners
-              </label>
-              <div className="space-y-3">
+        <CardContent className="p-8">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+            {/* Enhanced Owners Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-lg bg-green-100 flex items-center justify-center">
+                  <UsersIcon className="h-4 w-4 text-green-600" />
+                </div>
+                <div>
+                  <label className="block text-lg font-semibold text-neutral-900">
+                    Wallet Owners
+                  </label>
+                  <p className="text-sm text-neutral-600">Add Ethereum addresses that will control this wallet</p>
+                </div>
+              </div>
+              <div className="space-y-4">
                 {fields.map((field, index) => (
-                  <div key={field.id} className="flex space-x-2">
+                  <div key={field.id} className="flex gap-3 items-start">
                     <div className="flex-1">
-                      <Input
-                        {...register(`owners.${index}.address`, {
-                          validate: (value) => {
-                            if (!value.trim()) return true; // Allow empty for removal
-                            if (!isValidAddress(value)) {
-                              return 'Invalid Ethereum address';
-                            }
-                            return true;
-                          },
-                        })}
-                        placeholder="0x..."
-                        className={errors.owners?.[index]?.address ? 'border-red-500' : ''}
-                      />
+                      <div className="relative">
+                        <Input
+                          {...register(`owners.${index}.address`, {
+                            validate: (value) => {
+                              if (!value.trim()) return true; // Allow empty for removal
+                              if (!isValidAddress(value)) {
+                                return 'Invalid Ethereum address';
+                              }
+                              return true;
+                            },
+                          })}
+                          placeholder="0x1234567890abcdef1234567890abcdef12345678"
+                          className={`${errors.owners?.[index]?.address ? 'border-red-300 focus-visible:ring-red-500' : ''} font-mono text-sm`}
+                        />
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-neutral-400 font-medium">
+                          Owner {index + 1}
+                        </div>
+                      </div>
                       {errors.owners?.[index]?.address && (
-                        <p className="mt-1 text-sm text-red-600">
+                        <p className="mt-2 text-sm text-red-600 flex items-center gap-1">
+                          <span className="h-4 w-4 rounded-full bg-red-100 flex items-center justify-center text-xs">!</span>
                           {errors.owners[index]?.address?.message}
                         </p>
                       )}
@@ -169,74 +189,111 @@ const CreateWallet: React.FC = () => {
                       size="icon"
                       onClick={() => removeOwner(index)}
                       disabled={fields.length === 1}
-                      className="flex-shrink-0"
+                      className="flex-shrink-0 hover:bg-red-50 hover:border-red-300 hover:text-red-600"
                     >
                       <TrashIcon className="h-4 w-4" />
                     </Button>
                   </div>
                 ))}
               </div>
-              
+
               <Button
                 type="button"
                 variant="outline"
                 onClick={addOwner}
-                className="mt-3 flex items-center space-x-2"
+                className="mt-4 flex items-center gap-2 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-600"
               >
                 <PlusIcon className="h-4 w-4" />
-                <span>Add Owner</span>
+                <span>Add Another Owner</span>
               </Button>
 
               {errors.owners && (
-                <p className="mt-2 text-sm text-red-600">
+                <p className="mt-3 text-sm text-red-600 flex items-center gap-1">
+                  <span className="h-4 w-4 rounded-full bg-red-100 flex items-center justify-center text-xs">!</span>
                   {errors.owners.message}
                 </p>
               )}
             </div>
 
-            {/* Threshold Section */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Confirmation Threshold
-              </label>
-              <div className="flex items-center space-x-4">
-                <Input
-                  type="number"
-                  min="1"
-                  max={validOwnersCount || 1}
-                  {...register('threshold', {
-                    required: 'Threshold is required',
-                    min: { value: 1, message: 'Threshold must be at least 1' },
-                    max: { 
-                      value: validOwnersCount || 1, 
-                      message: 'Threshold cannot exceed number of owners' 
-                    },
-                    valueAsNumber: true,
-                  })}
-                  className="w-24"
-                />
-                <span className="text-sm text-gray-600">
-                  out of {validOwnersCount} owners
-                </span>
+            {/* Enhanced Threshold Section */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="h-8 w-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                  <span className="text-purple-600 font-bold text-sm">#</span>
+                </div>
+                <div>
+                  <label className="block text-lg font-semibold text-neutral-900">
+                    Confirmation Threshold
+                  </label>
+                  <p className="text-sm text-neutral-600">How many owners must approve each transaction</p>
+                </div>
               </div>
-              {errors.threshold && (
-                <p className="mt-1 text-sm text-red-600">
-                  {errors.threshold.message}
+              <div className="bg-neutral-50 p-6 rounded-xl border border-neutral-200">
+                <div className="flex items-center gap-6">
+                  <div className="flex items-center gap-4">
+                    <Input
+                      type="number"
+                      min="1"
+                      max={validOwnersCount || 1}
+                      {...register('threshold', {
+                        required: 'Threshold is required',
+                        min: { value: 1, message: 'Threshold must be at least 1' },
+                        max: {
+                          value: validOwnersCount || 1,
+                          message: 'Threshold cannot exceed number of owners'
+                        },
+                        valueAsNumber: true,
+                      })}
+                      className="w-20 text-center font-semibold text-lg"
+                    />
+                    <span className="text-lg text-neutral-600 font-medium">
+                      out of {validOwnersCount} owners
+                    </span>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm text-neutral-600">
+                      Security Level: <span className="font-semibold text-neutral-900">
+                        {validOwnersCount > 0 ? Math.round((watchedThreshold / validOwnersCount) * 100) : 0}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                {errors.threshold && (
+                  <p className="mt-3 text-sm text-red-600 flex items-center gap-1">
+                    <span className="h-4 w-4 rounded-full bg-red-100 flex items-center justify-center text-xs">!</span>
+                    {errors.threshold.message}
+                  </p>
+                )}
+                <p className="mt-3 text-sm text-neutral-600">
+                  Each transaction will require approval from at least {watchedThreshold} owner{watchedThreshold !== 1 ? 's' : ''} before it can be executed
                 </p>
-              )}
-              <p className="mt-1 text-sm text-gray-500">
-                Number of confirmations required to execute a transaction
-              </p>
+              </div>
             </div>
 
-            {/* Summary */}
-            <div className="bg-gray-50 p-4 rounded-lg">
-              <h4 className="font-medium text-gray-900 mb-2">Summary</h4>
-              <ul className="text-sm text-gray-600 space-y-1">
-                <li>• {validOwnersCount} wallet owner(s)</li>
-                <li>• {watchedThreshold} confirmation(s) required</li>
-                <li>• Each transaction needs {watchedThreshold}/{validOwnersCount} approvals</li>
-              </ul>
+            {/* Enhanced Summary */}
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6 rounded-xl border border-blue-200">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                  <span className="text-blue-600 font-bold text-sm">✓</span>
+                </div>
+                <h4 className="text-lg font-semibold text-neutral-900">Wallet Summary</h4>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                  <div className="text-2xl font-bold text-blue-600">{validOwnersCount}</div>
+                  <div className="text-sm text-neutral-600">Total Owners</div>
+                </div>
+                <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                  <div className="text-2xl font-bold text-purple-600">{watchedThreshold}</div>
+                  <div className="text-sm text-neutral-600">Required Signatures</div>
+                </div>
+                <div className="text-center p-4 bg-white rounded-lg shadow-sm">
+                  <div className="text-2xl font-bold text-green-600">
+                    {validOwnersCount > 0 ? Math.round((watchedThreshold / validOwnersCount) * 100) : 0}%
+                  </div>
+                  <div className="text-sm text-neutral-600">Security Level</div>
+                </div>
+              </div>
             </div>
 
             {/* Error Display */}
@@ -248,12 +305,13 @@ const CreateWallet: React.FC = () => {
               </AlertWithIcon>
             )}
 
-            {/* Submit Button */}
-            <div className="flex space-x-3">
+            {/* Enhanced Submit Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button
                 type="button"
                 variant="outline"
                 onClick={() => navigate('/')}
+                size="lg"
                 className="flex-1"
               >
                 Cancel
@@ -261,9 +319,17 @@ const CreateWallet: React.FC = () => {
               <Button
                 type="submit"
                 disabled={createWalletMutation.isPending || validOwnersCount === 0}
-                className="flex-1"
+                size="lg"
+                className="flex-1 shadow-lg"
               >
-                {createWalletMutation.isPending ? 'Creating...' : 'Create Wallet'}
+                {createWalletMutation.isPending ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                    Creating Wallet...
+                  </div>
+                ) : (
+                  'Create Wallet'
+                )}
               </Button>
             </div>
           </form>

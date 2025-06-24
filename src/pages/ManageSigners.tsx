@@ -73,36 +73,47 @@ const ManageSigners: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Manage Signers</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          View and manage wallet owners and signing requirements
+    <div className="space-y-8">
+      {/* Enhanced Header */}
+      <div className="text-center space-y-4">
+        <div className="mx-auto h-16 w-16 rounded-full bg-gradient-to-br from-purple-100 to-blue-100 flex items-center justify-center mb-6">
+          <UsersIcon className="h-8 w-8 text-purple-600" />
+        </div>
+        <h1 className="text-3xl font-bold text-neutral-900 tracking-tight">Manage Signers</h1>
+        <p className="text-lg text-neutral-600 max-w-2xl mx-auto leading-relaxed">
+          View and manage wallet owners and signing requirements for enhanced security
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Wallet Selection */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* Enhanced Wallet Selection */}
         <div className="lg:col-span-1">
-          <Card>
+          <Card className="h-fit">
             <CardHeader>
-              <CardTitle>Select Wallet</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <ShieldCheckIcon className="h-5 w-5 text-purple-600" />
+                Select Wallet
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {userWallets.map((walletAddress) => (
                 <div
                   key={walletAddress}
-                  className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                  className={`p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 hover:shadow-md ${
                     selectedWallet === walletAddress
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-purple-500 bg-gradient-to-r from-purple-50 to-purple-100 shadow-purple-100/50'
+                      : 'border-neutral-200 hover:border-neutral-300 bg-white hover:bg-neutral-50'
                   }`}
                   onClick={() => setSelectedWallet(walletAddress)}
                 >
-                  <p className="font-mono text-sm">
-                    {formatAddress(walletAddress)}
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="font-mono text-sm font-medium text-neutral-900">
+                      {formatAddress(walletAddress)}
+                    </p>
+                    {selectedWallet === walletAddress && (
+                      <div className="h-2 w-2 rounded-full bg-purple-500"></div>
+                    )}
+                  </div>
                 </div>
               ))}
             </CardContent>
@@ -128,71 +139,85 @@ const ManageSigners: React.FC = () => {
                 </AlertWithIcon>
               ) : walletInfo ? (
                 <div className="space-y-6">
-                  {/* Wallet Overview */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <ShieldCheckIcon className="h-5 w-5 mr-2" />
+                  {/* Enhanced Wallet Overview */}
+                  <Card className="shadow-lg">
+                    <CardHeader className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-t-xl">
+                      <CardTitle className="flex items-center gap-3 text-xl">
+                        <div className="h-10 w-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                          <ShieldCheckIcon className="h-5 w-5 text-purple-600" />
+                        </div>
                         Wallet Configuration
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-8">
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-blue-600">
+                        <div className="text-center p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200">
+                          <div className="text-3xl font-bold text-blue-600 mb-2">
                             {walletInfo.owners.length}
                           </div>
-                          <div className="text-sm text-gray-600">Total Owners</div>
+                          <div className="text-sm font-medium text-blue-800">Total Owners</div>
+                          <div className="text-xs text-blue-600 mt-1">Active Signers</div>
                         </div>
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-green-600">
+                        <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-xl border border-green-200">
+                          <div className="text-3xl font-bold text-green-600 mb-2">
                             {walletInfo.threshold}
                           </div>
-                          <div className="text-sm text-gray-600">Required Signatures</div>
+                          <div className="text-sm font-medium text-green-800">Required Signatures</div>
+                          <div className="text-xs text-green-600 mt-1">For Execution</div>
                         </div>
-                        <div className="text-center">
-                          <div className="text-2xl font-bold text-purple-600">
+                        <div className="text-center p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200">
+                          <div className="text-3xl font-bold text-purple-600 mb-2">
                             {Math.round((walletInfo.threshold / walletInfo.owners.length) * 100)}%
                           </div>
-                          <div className="text-sm text-gray-600">Consensus Required</div>
+                          <div className="text-sm font-medium text-purple-800">Consensus Required</div>
+                          <div className="text-xs text-purple-600 mt-1">Security Level</div>
                         </div>
                       </div>
                     </CardContent>
                   </Card>
 
-                  {/* Owners List */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center">
-                        <UsersIcon className="h-5 w-5 mr-2" />
+                  {/* Enhanced Owners List */}
+                  <Card className="shadow-lg">
+                    <CardHeader className="bg-gradient-to-r from-green-50 to-blue-50 rounded-t-xl">
+                      <CardTitle className="flex items-center gap-3 text-xl">
+                        <div className="h-10 w-10 rounded-lg bg-green-100 flex items-center justify-center">
+                          <UsersIcon className="h-5 w-5 text-green-600" />
+                        </div>
                         Wallet Owners
                       </CardTitle>
                     </CardHeader>
-                    <CardContent>
+                    <CardContent className="p-8">
                       <div className="space-y-4">
                         {walletInfo.owners.map((owner, index) => (
                           <div
                             key={owner}
-                            className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
+                            className="flex items-center justify-between p-6 bg-gradient-to-r from-neutral-50 to-neutral-100 rounded-xl border border-neutral-200 hover:shadow-md transition-all duration-200"
                           >
-                            <div className="flex items-center space-x-3">
+                            <div className="flex items-center gap-4">
                               <div className="flex-shrink-0">
-                                <UserIcon className="h-8 w-8 text-gray-400" />
+                                <div className="h-12 w-12 rounded-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
+                                  <UserIcon className="h-6 w-6 text-blue-600" />
+                                </div>
                               </div>
                               <div>
-                                <p className="font-mono text-sm font-medium text-gray-900">
+                                <p className="font-mono text-sm font-semibold text-neutral-900">
                                   {formatAddress(owner)}
                                 </p>
-                                <p className="text-sm text-gray-500">
+                                <p className="text-sm text-neutral-600 font-medium">
                                   Owner #{index + 1}
                                 </p>
                               </div>
                             </div>
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center gap-3">
                               {owner.toLowerCase() === address?.toLowerCase() && (
-                                <Badge variant="success">You</Badge>
+                                <Badge variant="success" size="lg">
+                                  <span className="flex items-center gap-1">
+                                    <span className="h-2 w-2 rounded-full bg-green-400"></span>
+                                    You
+                                  </span>
+                                </Badge>
                               )}
-                              <Badge variant="secondary">Owner</Badge>
+                              <Badge variant="premium" size="lg">Owner</Badge>
                             </div>
                           </div>
                         ))}
@@ -200,45 +225,83 @@ const ManageSigners: React.FC = () => {
                     </CardContent>
                   </Card>
 
-                  {/* Security Information */}
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>Security Information</CardTitle>
+                  {/* Enhanced Security Information */}
+                  <Card className="shadow-lg">
+                    <CardHeader className="bg-gradient-to-r from-orange-50 to-red-50 rounded-t-xl">
+                      <CardTitle className="flex items-center gap-3 text-xl">
+                        <div className="h-10 w-10 rounded-lg bg-orange-100 flex items-center justify-center">
+                          <ShieldCheckIcon className="h-5 w-5 text-orange-600" />
+                        </div>
+                        Security Information
+                      </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <div className="space-y-4">
-                        <div className="bg-blue-50 p-4 rounded-lg">
-                          <h4 className="font-medium text-blue-900 mb-2">
-                            Multi-Signature Security
-                          </h4>
-                          <p className="text-sm text-blue-800">
-                            This wallet requires {walletInfo.threshold} out of {walletInfo.owners.length} owners 
-                            to approve any transaction. This provides enhanced security by requiring 
-                            multiple parties to agree before funds can be moved.
-                          </p>
+                    <CardContent className="p-8">
+                      <div className="space-y-6">
+                        <div className="bg-gradient-to-r from-blue-50 to-blue-100 p-6 rounded-xl border border-blue-200">
+                          <div className="flex items-start gap-3">
+                            <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0 mt-1">
+                              <ShieldCheckIcon className="h-5 w-5 text-blue-600" />
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-blue-900 mb-3 text-lg">
+                                Multi-Signature Security
+                              </h4>
+                              <p className="text-sm text-blue-800 leading-relaxed">
+                                This wallet requires <span className="font-bold">{walletInfo.threshold} out of {walletInfo.owners.length} owners</span> to approve any transaction.
+                                This provides enhanced security by requiring multiple parties to agree before funds can be moved,
+                                protecting against single points of failure and unauthorized access.
+                              </p>
+                            </div>
+                          </div>
                         </div>
 
-                        <div className="bg-yellow-50 p-4 rounded-lg">
-                          <h4 className="font-medium text-yellow-900 mb-2">
-                            Important Notes
-                          </h4>
-                          <ul className="text-sm text-yellow-800 space-y-1">
-                            <li>• Owner addresses cannot be changed after wallet creation</li>
-                            <li>• The signature threshold cannot be modified</li>
-                            <li>• All owners have equal voting power</li>
-                            <li>• Lost access to owner accounts may affect wallet functionality</li>
-                          </ul>
+                        <div className="bg-gradient-to-r from-yellow-50 to-yellow-100 p-6 rounded-xl border border-yellow-200">
+                          <div className="flex items-start gap-3">
+                            <div className="h-8 w-8 rounded-lg bg-yellow-100 flex items-center justify-center flex-shrink-0 mt-1">
+                              <span className="text-yellow-600 font-bold text-sm">!</span>
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-yellow-900 mb-3 text-lg">
+                                Important Considerations
+                              </h4>
+                              <ul className="text-sm text-yellow-800 space-y-2">
+                                <li className="flex items-start gap-2">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-yellow-600 mt-2 flex-shrink-0"></span>
+                                  Owner addresses cannot be changed after wallet creation
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-yellow-600 mt-2 flex-shrink-0"></span>
+                                  The signature threshold cannot be modified
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-yellow-600 mt-2 flex-shrink-0"></span>
+                                  All owners have equal voting power
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-yellow-600 mt-2 flex-shrink-0"></span>
+                                  Lost access to owner accounts may affect wallet functionality
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
                         </div>
 
                         {!walletInfo.isOwner && (
-                          <div className="bg-red-50 p-4 rounded-lg">
-                            <h4 className="font-medium text-red-900 mb-2">
-                              Access Level
-                            </h4>
-                            <p className="text-sm text-red-800">
-                              You are not an owner of this wallet. You can view information 
-                              but cannot approve or submit transactions.
-                            </p>
+                          <div className="bg-gradient-to-r from-red-50 to-red-100 p-6 rounded-xl border border-red-200">
+                            <div className="flex items-start gap-3">
+                              <div className="h-8 w-8 rounded-lg bg-red-100 flex items-center justify-center flex-shrink-0 mt-1">
+                                <span className="text-red-600 font-bold text-sm">⚠</span>
+                              </div>
+                              <div>
+                                <h4 className="font-semibold text-red-900 mb-3 text-lg">
+                                  Limited Access Level
+                                </h4>
+                                <p className="text-sm text-red-800 leading-relaxed">
+                                  You are not an owner of this wallet. You can view information but cannot approve or submit transactions.
+                                  Contact one of the wallet owners if you need to perform transactions.
+                                </p>
+                              </div>
+                            </div>
                           </div>
                         )}
                       </div>

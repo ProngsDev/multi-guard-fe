@@ -4,15 +4,15 @@ import { cn } from '@/utils/cn';
 import { ExclamationTriangleIcon, CheckCircleIcon, InformationCircleIcon, XCircleIcon } from '@heroicons/react/24/outline';
 
 const alertVariants = cva(
-  'relative w-full rounded-lg border p-4',
+  'relative w-full rounded-xl border p-4 shadow-sm transition-all duration-200',
   {
     variants: {
       variant: {
-        default: 'bg-white text-gray-950 border-gray-200',
-        destructive: 'border-red-200 bg-red-50 text-red-900',
-        success: 'border-green-200 bg-green-50 text-green-900',
-        warning: 'border-yellow-200 bg-yellow-50 text-yellow-900',
-        info: 'border-blue-200 bg-blue-50 text-blue-900',
+        default: 'bg-white text-neutral-950 border-neutral-200 shadow-sm',
+        destructive: 'border-red-200 bg-red-50 text-red-900 shadow-red-100/50',
+        success: 'border-green-200 bg-green-50 text-green-900 shadow-green-100/50',
+        warning: 'border-yellow-200 bg-yellow-50 text-yellow-900 shadow-yellow-100/50',
+        info: 'border-blue-200 bg-blue-50 text-blue-900 shadow-blue-100/50',
       },
     },
     defaultVariants: {

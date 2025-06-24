@@ -12,33 +12,39 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   const { isConnected, address, connect, disconnect, isLoading } = useWallet();
 
   return (
-    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-white/80 backdrop-blur-md border-b border-neutral-200 sticky top-0 z-50 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo and Menu */}
+          {/* Enhanced Logo and Menu */}
           <div className="flex items-center">
             <button
               onClick={onMenuToggle}
-              className="md:hidden p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+              className="md:hidden p-2 rounded-lg text-neutral-400 hover:text-neutral-600 hover:bg-neutral-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500 transition-colors"
               aria-label="Open menu"
             >
               <Bars3Icon className="h-6 w-6" />
             </button>
             <div className="flex-shrink-0 flex items-center ml-2 md:ml-0">
-              <WalletIcon className="h-8 w-8 text-blue-600" />
-              <h1 className="ml-2 text-xl font-bold text-gray-900">
-                MultiGuard
-              </h1>
+              <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
+                <WalletIcon className="h-6 w-6 text-white" />
+              </div>
+              <div className="ml-3">
+                <h1 className="text-xl font-bold text-neutral-900 tracking-tight">
+                  MultiGuard
+                </h1>
+                <p className="text-xs text-neutral-500 font-medium">Multi-Sig Wallet</p>
+              </div>
             </div>
           </div>
 
-          {/* Wallet Connection */}
-          <div className="flex items-center space-x-4">
+          {/* Enhanced Wallet Connection */}
+          <div className="flex items-center gap-4">
             {isConnected && address ? (
-              <div className="flex items-center space-x-3">
-                <div className="hidden sm:block">
-                  <span className="text-sm text-gray-600">Connected:</span>
-                  <span className="ml-1 text-sm font-medium text-gray-900">
+              <div className="flex items-center gap-3">
+                <div className="hidden sm:flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg border border-green-200">
+                  <div className="h-2 w-2 rounded-full bg-green-500"></div>
+                  <span className="text-sm text-green-700 font-medium">Connected</span>
+                  <span className="text-sm font-mono text-green-800 font-semibold">
                     {formatAddress(address)}
                   </span>
                 </div>
@@ -47,15 +53,17 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
                   size="sm"
                   onClick={disconnect}
                   disabled={isLoading}
+                  className="hover:bg-red-50 hover:border-red-300 hover:text-red-600"
                 >
-                  Disconnect
+                  {isLoading ? 'Disconnecting...' : 'Disconnect'}
                 </Button>
               </div>
             ) : (
               <Button
                 onClick={connect}
                 disabled={isLoading}
-                className="flex items-center space-x-2"
+                size="default"
+                className="flex items-center gap-2 shadow-lg"
               >
                 <WalletIcon className="h-4 w-4" />
                 <span>{isLoading ? 'Connecting...' : 'Connect Wallet'}</span>
