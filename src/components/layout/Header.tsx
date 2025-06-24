@@ -1,7 +1,6 @@
 import React from 'react';
-import { Button } from '@/components/ui';
+import { Button, CopyableAddress } from '@/components/ui';
 import { useWallet } from '@/hooks';
-import { formatAddress } from '@/utils/web3';
 import { WalletIcon, Bars3Icon } from '@heroicons/react/24/outline';
 
 interface HeaderProps {
@@ -44,9 +43,14 @@ const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
                 <div className="hidden sm:flex items-center gap-2 px-3 py-2 bg-green-50 rounded-lg border border-green-200">
                   <div className="h-2 w-2 rounded-full bg-green-500"></div>
                   <span className="text-sm text-green-700 font-medium">Connected</span>
-                  <span className="text-sm font-mono text-green-800 font-semibold">
-                    {formatAddress(address)}
-                  </span>
+                  <CopyableAddress
+                    address={address}
+                    truncate={true}
+                    label="connected wallet address"
+                    variant="inline"
+                    copyButtonSize="sm"
+                    className="text-sm font-semibold text-green-800"
+                  />
                 </div>
                 <Button
                   variant="outline"

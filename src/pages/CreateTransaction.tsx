@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle, Button, Input, AlertWithIcon } from '@/components/ui';
+import { Card, CardContent, CardHeader, CardTitle, Button, Input, AlertWithIcon, CopyableAddress } from '@/components/ui';
 import { useWallet, useMultiSigOperations } from '@/hooks';
 import { queryKeys } from '@/utils/queryClient';
 import { isValidAddress, parseEther } from '@/utils/web3';
@@ -181,9 +181,14 @@ const CreateTransaction: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className={`h-3 w-3 rounded-full ${selectedWallet === walletAddress ? 'bg-green-500' : 'bg-neutral-300'}`}></div>
-                      <p className="font-mono text-sm font-medium text-neutral-900">
-                        {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
-                      </p>
+                      <CopyableAddress
+                        address={walletAddress}
+                        truncate={true}
+                        label="wallet address"
+                        variant="inline"
+                        copyButtonSize="sm"
+                        className="font-medium text-neutral-900"
+                      />
                     </div>
                     <div className="flex items-center gap-2">
                       {walletInfoLoading && selectedWallet === walletAddress ? (
@@ -333,15 +338,29 @@ const CreateTransaction: React.FC = () => {
                       <div className="space-y-3">
                         <div className="bg-white p-4 rounded-lg shadow-sm">
                           <p className="text-xs text-neutral-500 uppercase tracking-wide font-medium">From</p>
-                          <p className="font-mono text-sm font-medium text-neutral-900">
-                            {selectedWallet.slice(0, 6)}...{selectedWallet.slice(-4)}
-                          </p>
+                          <CopyableAddress
+                            address={selectedWallet}
+                            truncate={true}
+                            label="sender address"
+                            variant="inline"
+                            copyButtonSize="sm"
+                            className="font-medium text-neutral-900"
+                          />
                         </div>
                         <div className="bg-white p-4 rounded-lg shadow-sm">
                           <p className="text-xs text-neutral-500 uppercase tracking-wide font-medium">To</p>
-                          <p className="font-mono text-sm font-medium text-neutral-900">
-                            {watch('to') ? `${watch('to').slice(0, 6)}...${watch('to').slice(-4)}` : 'Not specified'}
-                          </p>
+                          {watch('to') ? (
+                            <CopyableAddress
+                              address={watch('to')}
+                              truncate={true}
+                              label="recipient address"
+                              variant="inline"
+                              copyButtonSize="sm"
+                              className="font-medium text-neutral-900"
+                            />
+                          ) : (
+                            <p className="font-mono text-sm font-medium text-neutral-500">Not specified</p>
+                          )}
                         </div>
                       </div>
                       <div className="space-y-3">

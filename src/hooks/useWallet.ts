@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { BrowserProvider, JsonRpcSigner } from 'ethers';
 import { useAppKit, useAppKitAccount } from '@reown/appkit/react';
+import { useQueryClient } from '@tanstack/react-query';
 import { appKit } from '@/utils/web3';
+import { queryKeys } from '@/utils/queryClient';
 
 interface WalletState {
   isConnected: boolean;
@@ -16,6 +18,7 @@ interface WalletState {
 export const useWallet = () => {
   const { open } = useAppKit();
   const { address, isConnected } = useAppKitAccount();
+  const queryClient = useQueryClient();
 
   const [walletState, setWalletState] = useState<WalletState>({
     isConnected: false,
@@ -47,12 +50,12 @@ export const useWallet = () => {
 
       const provider = new BrowserProvider(walletProvider);
       const signer = await provider.getSigner();
-      const address = await signer.getAddress();
+      const signerAddress = await signer.getAddress();
       const network = await provider.getNetwork();
 
       setWalletState({
         isConnected: true,
-        address,
+        address: signerAddress,
         provider,
         signer,
         chainId: Number(network.chainId),
@@ -60,7 +63,6 @@ export const useWallet = () => {
         error: null,
       });
     } catch (error) {
-      console.error('Error updating wallet state:', error);
       setWalletState(prev => ({
         ...prev,
         isLoading: false,
@@ -71,27 +73,17 @@ export const useWallet = () => {
 
   const connect = async () => {
     try {
-      console.log('🔗 Connect button clicked from useWallet hook');
-      console.log('🔗 Open function available:', !!open);
-      console.log('🔗 Open function type:', typeof open);
-
       setWalletState(prev => ({ ...prev, isLoading: true, error: null }));
 
       // Try React hook approach first
       if (open && typeof open === 'function') {
-        console.log('🔗 Using React hook approach...');
         try {
           open({ view: 'Connect' });
-          console.log('🔗 React hook open() completed successfully');
         } catch (hookError) {
-          console.warn('🔗 React hook failed, trying direct AppKit:', hookError);
           await appKit.open();
-          console.log('🔗 Direct AppKit open() completed successfully');
         }
       } else {
-        console.log('🔗 React hook not available, using direct AppKit...');
         await appKit.open();
-        console.log('🔗 Direct AppKit open() completed successfully');
       }
 
       // Reset loading state after a short delay to allow modal to appear
@@ -100,7 +92,6 @@ export const useWallet = () => {
       }, 1000);
 
     } catch (error) {
-      console.error('❌ Error connecting wallet:', error);
       setWalletState(prev => ({
         ...prev,
         isLoading: false,
@@ -122,7 +113,7 @@ export const useWallet = () => {
         error: null,
       });
     } catch (error) {
-      console.error('Error disconnecting wallet:', error);
+      // Silently handle disconnect errors
     }
   };
 
@@ -145,7 +136,12 @@ export const useWallet = () => {
   // Update wallet state when AppKit account changes
   useEffect(() => {
     if (isConnected && address) {
-      updateWalletState();
+      updateWalletState().then(() => {
+        // Invalidate user wallets query when wallet connects
+        queryClient.invalidateQueries({
+          queryKey: queryKeys.userWallets(address)
+        });
+      });
     } else {
       setWalletState(prev => ({
         ...prev,
@@ -155,11 +151,22 @@ export const useWallet = () => {
         signer: null,
         chainId: null,
       }));
+      // Clear all queries when wallet disconnects
+      queryClient.clear();
     }
-  }, [isConnected, address]);
+  }, [isConnected, address, queryClient]);
 
   return {
-    ...walletState,
+    // Use AppKit values for consistency with components
+    isConnected: isConnected && walletState.isConnected,
+    address: address || walletState.address,
+    // Use internal wallet state for provider/signer
+    provider: walletState.provider,
+    signer: walletState.signer,
+    chainId: walletState.chainId,
+    isLoading: walletState.isLoading,
+    error: walletState.error,
+    // Methods
     connect,
     disconnect,
     updateWalletState,

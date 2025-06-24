@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle, Button, LoadingSpinner, AlertWithIcon } from '@/components/ui';
+import { Card, CardContent, CardHeader, CardTitle, Button, LoadingSpinner, AlertWithIcon, CopyableAddress } from '@/components/ui';
 import { TransactionCard } from '@/components/wallet';
 import { useWallet, useMultiSigOperations } from '@/hooks';
 import { queryKeys } from '@/utils/queryClient';
@@ -164,11 +164,16 @@ const PendingTransactions: React.FC = () => {
                   onClick={() => setSelectedWallet(walletAddress)}
                 >
                   <div className="flex items-center justify-between">
-                    <p className="font-mono text-sm font-medium text-neutral-900">
-                      {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
-                    </p>
+                    <CopyableAddress
+                      address={walletAddress}
+                      truncate={true}
+                      label="wallet address"
+                      variant="inline"
+                      copyButtonSize="sm"
+                      className="font-medium text-neutral-900"
+                    />
                     {selectedWallet === walletAddress && (
-                      <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+                      <div className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0 ml-2"></div>
                     )}
                   </div>
                 </div>

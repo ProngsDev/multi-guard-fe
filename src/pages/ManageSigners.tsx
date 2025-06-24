@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle, Badge, LoadingSpinner, AlertWithIcon } from '@/components/ui';
+import { Card, CardContent, CardHeader, CardTitle, Badge, LoadingSpinner, AlertWithIcon, CopyableAddress } from '@/components/ui';
 import { useWallet, useMultiSigOperations } from '@/hooks';
 import { queryKeys } from '@/utils/queryClient';
 import { formatAddress } from '@/utils/web3';
@@ -107,11 +107,16 @@ const ManageSigners: React.FC = () => {
                   onClick={() => setSelectedWallet(walletAddress)}
                 >
                   <div className="flex items-center justify-between">
-                    <p className="font-mono text-sm font-medium text-neutral-900">
-                      {formatAddress(walletAddress)}
-                    </p>
+                    <CopyableAddress
+                      address={walletAddress}
+                      truncate={true}
+                      label="wallet address"
+                      variant="inline"
+                      copyButtonSize="sm"
+                      className="font-medium text-neutral-900"
+                    />
                     {selectedWallet === walletAddress && (
-                      <div className="h-2 w-2 rounded-full bg-purple-500"></div>
+                      <div className="h-2 w-2 rounded-full bg-purple-500 flex-shrink-0 ml-2"></div>
                     )}
                   </div>
                 </div>
@@ -200,9 +205,14 @@ const ManageSigners: React.FC = () => {
                                 </div>
                               </div>
                               <div>
-                                <p className="font-mono text-sm font-semibold text-neutral-900">
-                                  {formatAddress(owner)}
-                                </p>
+                                <CopyableAddress
+                                  address={owner}
+                                  truncate={true}
+                                  label={`owner ${index + 1} address`}
+                                  variant="inline"
+                                  copyButtonSize="sm"
+                                  className="font-semibold text-neutral-900"
+                                />
                                 <p className="text-sm text-neutral-600 font-medium">
                                   Owner #{index + 1}
                                 </p>

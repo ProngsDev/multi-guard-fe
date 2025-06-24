@@ -6,6 +6,8 @@ export const CONTRACT_ADDRESSES = {
   WALLET_FACTORY: import.meta.env.VITE_WALLET_FACTORY_ADDRESS || '',
 } as const;
 
+
+
 // Network configuration
 export const SUPPORTED_NETWORKS = {
   ETHEREUM: 1,

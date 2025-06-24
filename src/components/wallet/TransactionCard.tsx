@@ -1,6 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from '@/components/ui';
-import { formatAddress } from '@/utils/web3';
+import { Card, CardContent, CardHeader, CardTitle, Badge, Button, CopyableAddress } from '@/components/ui';
 import { 
   ArrowRightIcon, 
   CheckCircleIcon, 
@@ -52,9 +51,13 @@ const TransactionCard: React.FC<TransactionCardProps> = ({
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-sm text-gray-600">To:</span>
-            <span className="font-mono text-sm">
-              {formatAddress(transaction.to)}
-            </span>
+            <CopyableAddress
+              address={transaction.to}
+              truncate={true}
+              label="recipient address"
+              variant="inline"
+              copyButtonSize="sm"
+            />
           </div>
           
           <div className="flex items-center justify-between">

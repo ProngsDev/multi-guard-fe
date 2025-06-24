@@ -45,10 +45,17 @@ export const useWalletFactory = (
       validateContractAddress(CONTRACT_ADDRESSES.WALLET_FACTORY, 'WalletFactory');
       return CONTRACT_ADDRESSES.WALLET_FACTORY;
     } catch (error) {
-      console.error('WalletFactory validation failed:', error);
       return '';
     }
   }, []);
 
-  return useContract(validatedAddress, WalletFactoryABI, provider, signer);
+  const contract = useContract(validatedAddress, WalletFactoryABI, provider, signer);
+
+  console.log('🏭 WalletFactory contract created:', {
+    address: validatedAddress,
+    contract: !!contract,
+    contractTarget: contract?.target || 'N/A'
+  });
+
+  return contract;
 };

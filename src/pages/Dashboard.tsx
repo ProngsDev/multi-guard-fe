@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Card, CardContent, CardHeader, CardTitle, Button, LoadingSpinner, AlertWithIcon } from '@/components/ui';
+import { Card, CardContent, CardHeader, CardTitle, Button, LoadingSpinner, AlertWithIcon, CopyableAddress } from '@/components/ui';
 import { WalletCard, TransactionCard } from '@/components/wallet';
 import { useWallet, useMultiSigOperations } from '@/hooks';
 import { queryKeys } from '@/utils/queryClient';
@@ -13,16 +13,29 @@ const Dashboard: React.FC = () => {
   const multiSigOps = useMultiSigOperations(selectedWallet || undefined);
 
   // Fetch user's wallets
-  const { 
-    data: userWallets = [], 
-    isLoading: walletsLoading, 
-    error: walletsError 
+  const {
+    data: userWallets = [],
+    isLoading: walletsLoading,
+    error: walletsError,
+    isError: walletsIsError,
+    failureCount: walletsFailureCount
   } = useQuery({
     queryKey: queryKeys.userWallets(address || ''),
-    queryFn: () => multiSigOps.getUserWallets(),
+    queryFn: async () => {
+      console.log('🔄 React Query: Executing getUserWallets...');
+      const result = await multiSigOps.getUserWallets();
+      console.log('🔄 React Query: getUserWallets result:', result);
+      return result;
+    },
     enabled: !!address && isConnected,
     staleTime: 1000 * 60 * 5, // 5 minutes
+    retry: (failureCount, error) => {
+      console.log(`🔄 React Query retry ${failureCount}:`, error);
+      return failureCount < 3;
+    },
   });
+
+
 
   // Fetch selected wallet info
   const { 
@@ -76,11 +89,21 @@ const Dashboard: React.FC = () => {
     );
   }
 
-  if (walletsError) {
+  if (walletsError || multiSigOps.error) {
+    const errorMessage = walletsError instanceof Error
+      ? walletsError.message
+      : multiSigOps.error
+      ? multiSigOps.error
+      : 'Failed to load wallets';
+
     return (
-      <AlertWithIcon variant="destructive" title="Error loading wallets">
-        {walletsError instanceof Error ? walletsError.message : 'Failed to load wallets'}
-      </AlertWithIcon>
+      <div className="space-y-4">
+        <AlertWithIcon variant="destructive" title="Error loading wallets">
+          {errorMessage}
+        </AlertWithIcon>
+
+
+      </div>
     );
   }
 
@@ -146,11 +169,16 @@ const Dashboard: React.FC = () => {
                   onClick={() => setSelectedWallet(walletAddress)}
                 >
                   <div className="flex items-center justify-between">
-                    <p className="font-mono text-sm font-medium text-neutral-900">
-                      {walletAddress.slice(0, 6)}...{walletAddress.slice(-4)}
-                    </p>
+                    <CopyableAddress
+                      address={walletAddress}
+                      truncate={true}
+                      label="wallet address"
+                      variant="inline"
+                      copyButtonSize="sm"
+                      className="font-medium text-neutral-900"
+                    />
                     {selectedWallet === walletAddress && (
-                      <div className="h-2 w-2 rounded-full bg-blue-500"></div>
+                      <div className="h-2 w-2 rounded-full bg-blue-500 flex-shrink-0 ml-2"></div>
                     )}
                   </div>
                 </div>

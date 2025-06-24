@@ -4,3 +4,4 @@ export { Input } from './Input';
 export { Badge } from './Badge';
 export { LoadingSpinner } from './LoadingSpinner';
 export { Alert, AlertTitle, AlertDescription, AlertWithIcon } from './Alert';
+export { CopyableAddress } from './CopyableAddress';

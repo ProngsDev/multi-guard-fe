@@ -223,21 +223,70 @@ export const useMultiSigOperations = (walletAddress?: string) => {
   }, [multiSigContract, handleError]);
 
   const getUserWallets = useCallback(async (): Promise<string[]> => {
-    if (!factoryContract || !userAddress) return [];
+    if (!factoryContract || !userAddress || !provider) {
+      return [];
+    }
 
     try {
       setIsLoading(true);
       setError(null);
 
-      const wallets = await factoryContract.getWalletsByCreator(userAddress);
-      return wallets;
+      // First, verify the contract is deployed
+      const contractCode = await provider.getCode(factoryContract.target as string);
+      if (contractCode === '0x') {
+        throw new Error(`WalletFactory contract not deployed at ${factoryContract.target}`);
+      }
+
+      // Get wallets created by the user
+      const createdWalletsResult = await factoryContract.getWalletsByCreator(userAddress);
+
+      // Convert the result to a proper array (handle Proxy objects)
+      const createdWallets = Array.isArray(createdWalletsResult)
+        ? createdWalletsResult
+        : Array.from(createdWalletsResult || []);
+
+      // Get wallets where user is an owner (new functionality)
+      const ownedWallets: string[] = [];
+
+      try {
+        // Query WalletCreated events to find wallets where user is an owner
+        const filter = factoryContract.filters.WalletCreated();
+        const events = await factoryContract.queryFilter(filter, 0, 'latest');
+
+        for (const event of events) {
+          const parsedEvent = factoryContract.interface.parseLog({
+            topics: event.topics,
+            data: event.data
+          });
+
+          if (parsedEvent && parsedEvent.name === 'WalletCreated') {
+            const { wallet, owners } = parsedEvent.args;
+
+            // Check if current user is in the owners array (case-insensitive)
+            const userIsOwner = owners.some((owner: string) =>
+              owner.toLowerCase() === userAddress.toLowerCase()
+            );
+
+            if (userIsOwner) {
+              ownedWallets.push(wallet);
+            }
+          }
+        }
+      } catch (eventError) {
+        // Continue with just created wallets if event querying fails
+      }
+
+      // Combine and deduplicate wallets
+      const allWallets = [...new Set([...createdWallets, ...ownedWallets])];
+
+      return allWallets;
     } catch (error) {
       handleError(error, 'Failed to fetch user wallets');
       return [];
     } finally {
       setIsLoading(false);
     }
-  }, [factoryContract, userAddress, handleError]);
+  }, [factoryContract, userAddress, provider, handleError]);
 
   return {
     isLoading,

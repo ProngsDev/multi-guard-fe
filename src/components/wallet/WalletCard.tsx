@@ -1,6 +1,5 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle, Badge, Button } from '@/components/ui';
-import { formatAddress } from '@/utils/web3';
+import { Card, CardContent, CardHeader, CardTitle, Badge, Button, CopyableAddress } from '@/components/ui';
 import { WalletIcon, UsersIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 import type { WalletInfo } from '@/types';
 
@@ -39,10 +38,14 @@ const WalletCard: React.FC<WalletCardProps> = ({
       <CardContent className="space-y-4">
         {/* Address */}
         <div>
-          <p className="text-sm text-gray-600 mb-1">Address</p>
-          <p className="font-mono text-sm bg-gray-50 p-2 rounded border">
-            {formatAddress(wallet.address)}
-          </p>
+          <p className="text-sm text-gray-600 mb-1">Wallet Address</p>
+          <CopyableAddress
+            address={wallet.address}
+            variant="card"
+            truncate={true}
+            label="wallet address"
+            className="w-full"
+          />
         </div>
 
         {/* Balance */}

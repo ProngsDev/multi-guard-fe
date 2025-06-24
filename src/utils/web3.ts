@@ -6,18 +6,7 @@ import { formatEther as ethersFormatEther, parseEther as ethersParseEther } from
 // 1. Get projectId from https://cloud.reown.com
 const projectId = import.meta.env.VITE_REOWN_PROJECT_ID || 'YOUR_PROJECT_ID'
 
-// Debug logging for development
-if (import.meta.env.DEV) {
-  console.log('🔧 WalletConnect Configuration:')
-  console.log('Project ID:', projectId)
-  console.log('Metadata URL:', import.meta.env.DEV ? 'http://localhost:5173' : 'https://multiguard.app')
 
-  if (projectId === 'YOUR_PROJECT_ID') {
-    console.error('❌ VITE_REOWN_PROJECT_ID environment variable not found!')
-    console.log('💡 Make sure your .env file contains: VITE_REOWN_PROJECT_ID=your_actual_project_id')
-    console.log('💡 Restart your development server after updating .env')
-  }
-}
 
 // 2. Set the networks
 const networks = [mainnet, sepolia, polygon, polygonMumbai]
@@ -39,18 +28,12 @@ export const appKit = createAppKit({
   networks,
   metadata,
   projectId,
-  debug: import.meta.env.DEV, // Enable debug mode in development
   features: {
     analytics: true, // Optional - defaults to your Cloud configuration
   }
 })
 
-// Debug logging for AppKit initialization
-if (import.meta.env.DEV) {
-  console.log('🚀 AppKit initialized:', appKit);
-  console.log('🚀 AppKit methods available:', Object.keys(appKit));
-  console.log('🚀 AppKit state:', appKit.getState?.());
-}
+
 
 export { ethersAdapter }
 
